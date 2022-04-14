@@ -1,25 +1,31 @@
-package ru.roach.operasales.model.event;
+package ru.roach.operasales.model.opera;
 
-public class Event implements IEvent {
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+@Component
+@Scope("prototype")
+public class Opera implements Event {
+
     private String eventName;
-    private StringBuilder infoEvent;
+    private StringBuilder eventInfo;
     private int pegi;
-    private int numberOfSeat;
+    private int seats;
 
-    public Event(String eventName, StringBuilder infoEvent, int pegi, int numberOfSeat) {
-        setEventName(eventName);
-        setInfoEvent(infoEvent);
+    public Opera(String eventName, StringBuilder eventInfo, int pegi, int seats) {
+        setName(eventName);
+        setInfo(eventInfo);
         setPegi(pegi);
-        setNumberOfSeat(numberOfSeat);
+        setSeats(seats);
     }
 
     @Override
-    public String getEventName() {
+    public String getName() {
         return eventName;
     }
 
     @Override
-    public void setEventName(String eventName) {
+    public void setName(String eventName) {
         if (eventName.equals("")) {
             throw new IllegalArgumentException("Необходимо задать название мероприятия!");
         }
@@ -27,13 +33,13 @@ public class Event implements IEvent {
     }
 
     @Override
-    public StringBuilder getInfoEvent() {
-        return infoEvent;
+    public StringBuilder getInfo() {
+        return eventInfo;
     }
 
     @Override
-    public void setInfoEvent(StringBuilder infoEvent) {
-        this.infoEvent = infoEvent;
+    public void setInfo(StringBuilder eventInfo) {
+        this.eventInfo = eventInfo;
     }
 
     @Override
@@ -52,27 +58,23 @@ public class Event implements IEvent {
     }
 
     @Override
-    public int getNumberOfSeat() {
-        return numberOfSeat;
+    public int getSeats() {
+        return seats;
     }
 
     @Override
-    public void setNumberOfSeat(int numberOfSeat) {
-        if (numberOfSeat < 0 || numberOfSeat > 1_000_000_000) {
+    public void setSeats(int seats) {
+        if (seats < 0 || seats > 1_000_000_000) {
             throw new IllegalArgumentException("Некорректное кол-во мест на мероприятии!");
         }
-        this.numberOfSeat = numberOfSeat;
+        this.seats = seats;
     }
 
     @Override
     public String toString() {
-        return "Название мероприятия: " + getEventName() + "\n" +
-                "Краткая информация: " + getInfoEvent() + "\n" +
+        return "Название мероприятия: " + getName() + "\n" +
+                "Краткая информация: " + getInfo() + "\n" +
                 "Возрастное ограничение: " + getPegi() + "\n" +
-                "Кол-во мест: " + getNumberOfSeat();
-    }
-
-    public void consoleOut() {
-        System.out.println(toString());
+                "Кол-во мест: " + getSeats();
     }
 }

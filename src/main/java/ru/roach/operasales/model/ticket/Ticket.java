@@ -1,37 +1,15 @@
 package ru.roach.operasales.model.ticket;
 
-import ru.roach.operasales.model.event.IEvent;
+import ru.roach.operasales.model.opera.Event;
 
-public class Ticket {
-    private double price;
-    private boolean state;
-    private IEvent event;
+public interface Ticket {
+    Event getEvent();
+    void setEvent(Event event);
 
-    public Ticket (IEvent event){
-        this.event = event;
-    }
+    boolean getState();
+    void setState(boolean state);
 
-    public double getPrice() {
-        return price;
-    }
+    double getMoney();
+    void setMoney(double money);
 
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public boolean isState() {
-        return state;
-    }
-
-    public void setState(boolean state) {
-        this.state = state;
-    }
-
-    public IEvent getEvent() {
-        return event;
-    }
-
-    public void setEvent(IEvent event) {
-        this.event = event;
-    }
 }
