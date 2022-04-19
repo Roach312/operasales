@@ -4,18 +4,19 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.roach.operasales.model.opera.Event;
 
-@Component
 @Scope("prototype")
 public class EventTicket implements Ticket {
 
     private Event event;
     private boolean state = false;
     private double money;
+    private String mail;
 
-    public EventTicket(Event event, boolean state, double money){
+    public EventTicket(Event event, boolean state, double money, String mail) {
         setEvent(event);
         setState(state);
         setMoney(money);
+        setMail(mail);
     }
 
     @Override
@@ -47,4 +48,15 @@ public class EventTicket implements Ticket {
     public void setMoney(double money) {
         this.money = money;
     }
+
+    @Override
+    public String getMail() {
+        return mail;
+    }
+
+    @Override
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
 }

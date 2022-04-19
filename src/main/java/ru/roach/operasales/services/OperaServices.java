@@ -1,6 +1,7 @@
 package ru.roach.operasales.services;
 
 import org.springframework.stereotype.Service;
+import ru.roach.operasales.annotatians.*;
 import ru.roach.operasales.model.opera.Opera;
 import ru.roach.operasales.model.opera.Event;
 
@@ -17,6 +18,7 @@ public class OperaServices {
         return events.get(name);
     }
 
+    @NotifyNewAnnonceEvent
     public void setEvent(String name, StringBuilder info, int pegi, int seats) {
         System.out.println("Добавляем новую премьеру: " + name + "\n*******");
         events.put(name, new Opera(name, info, pegi, seats));
@@ -34,6 +36,7 @@ public class OperaServices {
         events.forEach((k, v) -> System.out.println(v.toString() + "\n-------"));
     }
 
+    @NotifyChangeEvent
     public void reNameEvent(String oldName, String newName) {
         Event event = getEvent(oldName);
         if (event == null) {
@@ -44,6 +47,7 @@ public class OperaServices {
         events.put(newName, event);
     }
 
+    @NotifyChangeEvent
     public void reInfoEvent(String name, StringBuilder info) {
         Event event = getEvent(name);
         if (event == null) {
@@ -53,6 +57,7 @@ public class OperaServices {
         events.replace(name, event);
     }
 
+    @NotifyChangeEvent
     public void rePegiEvent(String name, int pegi) {
         Event event = getEvent(name);
         if (event == null) {

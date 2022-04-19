@@ -18,14 +18,14 @@ public class OperasalesApplication {
 
         ctx.getBean(OperaServices.class).viewAllEvents();
 
-        ctx.getBean(OperaServices.class).reNameEvent("Алеко", "TEST");
-        ctx.getBean(OperaServices.class).reInfoEvent("TEST", new StringBuilder("!Тест!"));
-        ctx.getBean(OperaServices.class).rePegiEvent("TEST", 10);
+        ctx.getBean(TicketServices.class).buyTicket("Травиата", 2000, "exampe_user@mail.ru");
+        ctx.getBean(TicketServices.class).buyTicket("Травиата", 4000, "NEW_User121@mymail.ru");
+        ctx.getBean(TicketServices.class).returnTicket("Травиата", 1);
+
+        ctx.getBean(OperaServices.class).reNameEvent("Травиата", "TEST");
         ctx.getBean(OperaServices.class).reSeatsEvent("TEST", 10_000);
 
         ctx.getBean(OperaServices.class).viewEvent("TEST");
-        ctx.getBean(TicketServices.class).buyTicket("Травиата", 2000);
-        ctx.getBean(TicketServices.class).returnTicket("Травиата", 1);
     }
 
 

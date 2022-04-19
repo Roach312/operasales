@@ -12,4 +12,7 @@ public interface Ticket {
     double getMoney();
     void setMoney(double money);
 
+    String getMail();
+    void setMail(String mail);
+
 }

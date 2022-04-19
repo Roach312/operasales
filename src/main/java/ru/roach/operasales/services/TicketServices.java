@@ -1,6 +1,7 @@
 package ru.roach.operasales.services;
 
 import org.springframework.stereotype.Service;
+import ru.roach.operasales.annotatians.NotifyMailBuyTicket;
 import ru.roach.operasales.model.opera.Event;
 import ru.roach.operasales.model.ticket.EventTicket;
 import ru.roach.operasales.model.ticket.Ticket;
@@ -12,23 +13,29 @@ import java.util.List;
 public class TicketServices {
 
     private OperaServices operaServices;
-    private List<Ticket> tickets = new LinkedList<>();
+    private static List<Ticket> tickets = new LinkedList<>();
 
     public TicketServices(OperaServices operaServices) {
         this.operaServices = operaServices;
     }
 
-    public void buyTicket(String eventName, double money) {
+    public static List getTickets() {
+        return tickets;
+    }
+
+    @NotifyMailBuyTicket
+    public void buyTicket(String eventName, double money, String mail) {
         Event event = operaServices.getEvent(eventName);
         if (event.getSeats() == 0) {
             throw new IllegalStateException("Мест больше нет!");
         }
         event.setSeats(event.getSeats() - 1);
-        tickets.add(new EventTicket(event, true, money));
+        tickets.add(new EventTicket(event, true, money, mail));
         System.out.println("Вы успешно купили билет на: " + event.getName() +
                 "\nНомер вашего билета: " + tickets.size() +
                 "\nПотрачено денег: " + money +
                 "\nОсталось мест:" + event.getSeats() +
+                "\nУведомление отправлено на эл. почту:" + mail +
                 "\n#######");
     }
 
