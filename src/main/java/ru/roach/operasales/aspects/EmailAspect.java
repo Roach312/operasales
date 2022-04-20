@@ -55,7 +55,6 @@ public class EmailAspect {
             Object[] signatureArgs = point.getArgs();
             String subject = null, message = null, event = null;
 
-            TicketServices ticketServices = new TicketServices(new OperaServices());
             switch (methodName) {
                 case ("reNameEvent"):
                     event = signatureArgs[1].toString();

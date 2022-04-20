@@ -1,7 +1,11 @@
 package ru.roach.operasales.services;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 import ru.roach.operasales.annotatians.*;
+import ru.roach.operasales.event.SeatsChangeEvent;
 import ru.roach.operasales.model.opera.Opera;
 import ru.roach.operasales.model.opera.Event;
 
@@ -10,9 +14,10 @@ import java.util.HashMap;
 
 
 @Service
-public class OperaServices {
+public class OperaServices implements ApplicationContextAware {
 
     private Map<String, Event> events = new HashMap<>();
+    private ApplicationContext ctx;
 
     public Event getEvent(String name) {
         return events.get(name);
@@ -74,7 +79,15 @@ public class OperaServices {
         }
         event.setSeats(seats);
         events.replace(name, event);
+        ctx.publishEvent(
+                new SeatsChangeEvent(
+                        new SeatsChangeEvent.Info(name, seats)
+                )
+        );
     }
 
-
+    @Override
+    public void setApplicationContext(ApplicationContext ctx) throws BeansException {
+        this.ctx = ctx;
+    }
 }
