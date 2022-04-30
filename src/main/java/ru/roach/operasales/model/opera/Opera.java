@@ -6,11 +6,11 @@ import org.springframework.context.annotation.Scope;
 public class Opera implements Event {
 
     private String eventName;
-    private StringBuilder eventInfo;
+    private String eventInfo;
     private int pegi;
     private int seats;
 
-    public Opera(String eventName, StringBuilder eventInfo, int pegi, int seats) {
+    public Opera(String eventName, String eventInfo, int pegi, int seats) {
         setName(eventName);
         setInfo(eventInfo);
         setPegi(pegi);
@@ -31,12 +31,12 @@ public class Opera implements Event {
     }
 
     @Override
-    public StringBuilder getInfo() {
+    public String getInfo() {
         return eventInfo;
     }
 
     @Override
-    public void setInfo(StringBuilder eventInfo) {
+    public void setInfo(String eventInfo) {
         this.eventInfo = eventInfo;
     }
 

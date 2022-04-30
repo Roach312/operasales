@@ -4,8 +4,8 @@ public interface Event {
     String getName();
     void setName(String eventName);
 
-    StringBuilder getInfo();
-    void setInfo(StringBuilder eventInfo);
+    String getInfo();
+    void setInfo(String eventInfo);
 
     int getPegi();
     void setPegi(int pegi);

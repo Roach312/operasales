@@ -1,63 +1,49 @@
 package ru.roach.operasales.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import ru.roach.operasales.annotatians.NotifyMailBuyTicket;
+
 import ru.roach.operasales.model.opera.Event;
 import ru.roach.operasales.model.ticket.EventTicket;
 import ru.roach.operasales.model.ticket.Ticket;
+import ru.roach.operasales.repository.entities.TicketEntity;
+import ru.roach.operasales.repository.interfaces.TicketRepository;
 
-import java.util.LinkedList;
-import java.util.List;
+import javax.transaction.Transactional;
+
 
 @Service
+@Scope("singleton")
 public class TicketServices {
 
     private OperaServices operaServices;
-    private static List<Ticket> tickets = new LinkedList<>();
+    private TicketRepository ticketRepository;
 
-    public TicketServices(OperaServices operaServices) {
+    @Autowired
+    public TicketServices(OperaServices operaServices, TicketRepository ticketRepository) {
         this.operaServices = operaServices;
+        this.ticketRepository = ticketRepository;
     }
 
-    public static List getTickets() {
-        return tickets;
-    }
 
     @NotifyMailBuyTicket
+    @Transactional
     public void buyTicket(String eventName, double money, String mail) {
         Event event = operaServices.getEvent(eventName);
-        if (event.getSeats() == 0) {
-            throw new IllegalStateException("Мест больше нет!");
-        }
-        event.setSeats(event.getSeats() - 1);
-        tickets.add(new EventTicket(event, true, money, mail));
-        System.out.println("Вы успешно купили билет на: " + event.getName() +
-                "\nНомер вашего билета: " + tickets.size() +
-                "\nПотрачено денег: " + money +
-                "\nОсталось мест:" + event.getSeats() +
-                "\nУведомление отправлено на эл. почту:" + mail +
-                "\n#######");
+        TicketEntity ticket = ticketRepository.save(new TicketEntity(event, true, mail, money));
+        operaServices.reSeatsEvent(event.getName(), event.getSeats() - 1);
     }
 
-    public void returnTicket(String eventName, int ticketNumber) {
-        if (eventName.equals(tickets.get(ticketNumber - 1).getEvent().getName())) {
-            Ticket ticket = tickets.get(ticketNumber - 1);
-            if (ticket.getState() == false){
-                throw new IllegalStateException("Вы уже сдавали этот билет!");
-            }
-            ticket.setState(false);
-            double money = ticket.getMoney();
-            ticket.setMoney(money - money);
-            Event event = ticket.getEvent();
-            event.setSeats(event.getSeats() + 1);
-            System.out.println("Вы успешно сдали билет на: " + event.getName() +
-                    "\nВозвращено денег: " + money +
-                    "\nОсталось мест:" + event.getSeats() +
-                    "\n#######");
-        } else {
-            throw new IllegalArgumentException("Введите правильно премьеру!");
+    @Transactional
+    public void returnTicket(Long ticketNumber) {
+        Ticket ticket = ticketRepository.getById(ticketNumber);
+        if (ticket != null){
+            String txtMsg = ticketRepository.returnTicket(false, ticketNumber) > 0 ? "Вы успешно сдали билет №" + ticketNumber
+                    : "Не удалось сдать билет №" + ticketNumber;
+            System.out.println(txtMsg);
         }
-
     }
 
 }

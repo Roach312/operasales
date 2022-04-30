@@ -16,7 +16,7 @@ public class EventSeats implements ApplicationListener<SeatsChangeEvent> {
         SeatsChangeEvent.Info info = (SeatsChangeEvent.Info) event.getSource();
 
         //Рассылка всем мэйлам кто купил билеты на данное мероприятие
-        for (Object obj : TicketServices.getTickets()) {
+        /*for (Object obj : TicketServices.getTickets()) {
             Ticket ticket = (Ticket) obj;
             if (ticket.getEvent().getName().equals(info.getEventName())) {
                 EmailNotifier.sendSimpleEmail(ticket.getMail(),
@@ -24,6 +24,6 @@ public class EventSeats implements ApplicationListener<SeatsChangeEvent> {
                         "Произошла замена кол-ва мест на мероприятии: " + info.getEventName() +
                                 "\nНовое кол-во мест: " + info.getNewSeatsValue());
             }
-        }
+        }*/
     }
 }

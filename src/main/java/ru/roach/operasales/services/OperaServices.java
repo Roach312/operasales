@@ -1,36 +1,54 @@
 package ru.roach.operasales.services;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import ru.roach.operasales.annotatians.*;
 import ru.roach.operasales.event.SeatsChangeEvent;
-import ru.roach.operasales.model.opera.Opera;
 import ru.roach.operasales.model.opera.Event;
+import ru.roach.operasales.repository.entities.EventEntity;
+import ru.roach.operasales.repository.interfaces.EventRepository;
 
-import java.util.Map;
-import java.util.HashMap;
+import javax.transaction.Transactional;
 
 
 @Service
+@Scope("singleton")
 public class OperaServices implements ApplicationContextAware {
 
-    private Map<String, Event> events = new HashMap<>();
+    private EventRepository eventRepository;
     private ApplicationContext ctx;
 
+    @Autowired
+    public OperaServices (EventRepository eventRepository){
+        this.eventRepository = eventRepository;
+    }
+
+
     public Event getEvent(String name) {
-        return events.get(name);
+        return eventRepository.getEventByName(name);
+    }
+
+
+    @Cacheable(value = "event.name", key = "#name")
+    public EventEntity getEventEnt(String name) {
+        return eventRepository.getEventByName(name);
     }
 
     @NotifyNewAnnonceEvent
-    public void setEvent(String name, StringBuilder info, int pegi, int seats) {
+    public void setEvent(String name, String info, int pegi, int seats) {
         System.out.println("Добавляем новую премьеру: " + name + "\n*******");
-        events.put(name, new Opera(name, info, pegi, seats));
+        eventRepository.save(new EventEntity(name, info, pegi, seats));
     }
 
+    @Transactional
     public void removeEvent(String name) {
-        events.remove(name);
+        String txtMsg = eventRepository.deleteByEventName(name) > 0 ? "Вы успешно удалили: " + name : "Не получилось удалить: " + name;
+        System.out.println(txtMsg);
     }
 
     public void viewEvent(String name) {
@@ -38,47 +56,37 @@ public class OperaServices implements ApplicationContextAware {
     }
 
     public void viewAllEvents() {
-        events.forEach((k, v) -> System.out.println(v.toString() + "\n-------"));
+        eventRepository.findAll().forEach(System.out::println);
     }
 
     @NotifyChangeEvent
+    @Transactional
     public void reNameEvent(String oldName, String newName) {
-        Event event = getEvent(oldName);
-        if (event == null) {
-            throw new IllegalArgumentException("Такой премьеры не существует!");
-        }
-        event.setName(newName);
-        events.remove(oldName);
-        events.put(newName, event);
+        String txtMsg = eventRepository.updateEventName(oldName, newName) > 0 ? "Вы успешно поменяли имя с: " + oldName + " на: " + newName
+                : "Не удалось поменять имя с: " + oldName + " на: " + newName;
+        System.out.println(txtMsg);
     }
 
     @NotifyChangeEvent
-    public void reInfoEvent(String name, StringBuilder info) {
-        Event event = getEvent(name);
-        if (event == null) {
-            throw new IllegalArgumentException("Такой премьеры не существует!");
-        }
-        event.setInfo(info);
-        events.replace(name, event);
+    @Transactional
+    public void reInfoEvent(String name, String info) {
+        String txtMsg = eventRepository.updateEventInfo(name, info) > 0 ? "Вы успешно поменяли информацию мероприятия: " + name : "Не удалось поменть информацию мероприятия: " + name;
+        System.out.println(txtMsg);
     }
 
     @NotifyChangeEvent
+    @Transactional
     public void rePegiEvent(String name, int pegi) {
-        Event event = getEvent(name);
-        if (event == null) {
-            throw new IllegalArgumentException("Такой премьеры не существует!");
-        }
-        event.setPegi(pegi);
-        events.replace(name, event);
+        String txtMsg = eventRepository.updateEventPegi(name, pegi) > 0 ? "Вы успешно поменяли возрастное ограничение мероприятия: " + name
+                : "Не удалось поменять возрастное ограничение мероприятия: " + name;
+        System.out.println(txtMsg);
     }
 
+    @Transactional
     public void reSeatsEvent(String name, int seats) {
-        Event event = getEvent(name);
-        if (event == null) {
-            throw new IllegalArgumentException("Такой премьеры не существует!");
-        }
-        event.setSeats(seats);
-        events.replace(name, event);
+        String txtMsg = eventRepository.updateEventSeats(name, seats) > 0 ? "Вы успешно поменяли кол-во мест мероприятия: " + name
+                : "Не удалось поменять кол-во мест мероприятия: " + name;
+        System.out.println(txtMsg);
         ctx.publishEvent(
                 new SeatsChangeEvent(
                         new SeatsChangeEvent.Info(name, seats)

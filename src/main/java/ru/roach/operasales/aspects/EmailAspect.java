@@ -2,29 +2,31 @@ package ru.roach.operasales.aspects;
 
 import com.sun.xml.internal.txw2.IllegalSignatureException;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.roach.operasales.model.ticket.Ticket;
+import ru.roach.operasales.repository.entities.EventEntity;
+import ru.roach.operasales.repository.entities.TicketEntity;
 import ru.roach.operasales.services.OperaServices;
-import ru.roach.operasales.services.TicketServices;
 import ru.roach.operasales.services.mail.EmailNotifier;
+
+import java.util.Collection;
 
 
 @Component
 @Aspect
 public class EmailAspect {
+
+    private OperaServices operaServices;
+
+    @Autowired
+    public EmailAspect(OperaServices operaServices) {
+        this.operaServices = operaServices;
+    }
+
     @Pointcut("@annotation(ru.roach.operasales.annotatians.NotifyMailBuyTicket)")
     public void sendEmailSuccessBuyTicket() {
-    }
-
-    @Pointcut("@annotation(ru.roach.operasales.annotatians.NotifyNewAnnonceEvent)")
-    public void sendEmailNewAnnounceEvent() {
-    }
-
-    @Pointcut("@annotation(ru.roach.operasales.annotatians.NotifyChangeEvent)")
-    public void sendEmailChangeEvent() {
     }
 
     @AfterReturning("sendEmailSuccessBuyTicket()")
@@ -36,6 +38,10 @@ public class EmailAspect {
                         "\nВы потратили: " + signatureArgs[1]);
     }
 
+    @Pointcut("@annotation(ru.roach.operasales.annotatians.NotifyNewAnnonceEvent)")
+    public void sendEmailNewAnnounceEvent() {
+    }
+
     @AfterReturning("sendEmailNewAnnounceEvent()")
     public void afterSuccessNewAnnounceEvent(JoinPoint point) {
         Object[] signatureArgs = point.getArgs();
@@ -45,6 +51,10 @@ public class EmailAspect {
                         "\n" + signatureArgs[1] +
                         "\nВозростное ограничение: " + signatureArgs[2] +
                         "\nКол-во мест: " + signatureArgs[3]);
+    }
+
+    @Pointcut("@annotation(ru.roach.operasales.annotatians.NotifyChangeEvent)")
+    public void sendEmailChangeEvent() {
     }
 
     @AfterReturning("sendEmailChangeEvent()")
@@ -59,31 +69,29 @@ public class EmailAspect {
                 case ("reNameEvent"):
                     event = signatureArgs[1].toString();
                     subject = "Изменилось название мероприятия!";
-                    message = "Мы изменили название мероприятия с: " + signatureArgs[0] + " на: " + signatureArgs[1];
+                    message = "Мы изменили название мероприятия с: " + signatureArgs[0] + " на: " + event;
                     break;
                 case ("reInfoEvent"):
-                    event = signatureArgs[1].toString();
+                    event = signatureArgs[0].toString();
                     subject = "Изменилась информация о мероприятии!";
-                    message = "Мы изменили инфо о мероприятия: " + signatureArgs[0] +
+                    message = "Мы изменили инфо о мероприятии: " + event +
                             "\nНовая информация: " + signatureArgs[1];
                     break;
                 case ("rePegiEvent"):
-                    event = signatureArgs[1].toString();
+                    event = signatureArgs[0].toString();
                     subject = "Изменилось возрастное ограничение мероприятия!";
-                    message = "Мы изменили возрастное ограничение мероприятия: " + signatureArgs[0] +
+                    message = "Мы изменили возрастное ограничение мероприятия: " + event +
                             "\nНовое возрастное ограничение: " + signatureArgs[1];
                     break;
                 default:
                     throw new IllegalSignatureException("Неверно выбранный метод для инжекта аспекта!");
             }
 
-            //Рассылка всем мэйлам кто купил билеты на данное мероприятие
-            for (Object obj : TicketServices.getTickets()){
-                Ticket ticket = (Ticket) obj;
-                if (ticket.getEvent().getName().equals(event)){
-                    EmailNotifier.sendSimpleEmail(ticket.getMail(), subject, message);
-                }
+            EventEntity eventEntity = (EventEntity) operaServices.getEvent(event);
+            for (Ticket ticket : eventEntity.getTicket()) {
+                EmailNotifier.sendSimpleEmail(ticket.getMail(), subject, message);
             }
+
         } else {
             throw new IllegalSignatureException("Неверно выбранный класс для инжекта аспекта!");
         }
