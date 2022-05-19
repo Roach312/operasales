@@ -1,8 +1,9 @@
 package ru.roach.operasales.model.opera;
 
-import org.springframework.context.annotation.Scope;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@Scope("prototype")
+@Data
 public class Opera implements Event {
 
     private String eventName;

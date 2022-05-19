@@ -31,6 +31,9 @@ public class TicketEntity implements Ticket {
     @Column(name = "price")
     private double price;
 
+    @Version
+    private long version;
+
     public TicketEntity(){}
 
     public TicketEntity(Event event, boolean state, String mail, double price){

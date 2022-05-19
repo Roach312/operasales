@@ -3,6 +3,9 @@ package ru.roach.operasales.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.roach.operasales.annotatians.NotifyMailBuyTicket;
 
 import ru.roach.operasales.model.opera.Event;
@@ -10,8 +13,6 @@ import ru.roach.operasales.model.ticket.EventTicket;
 import ru.roach.operasales.model.ticket.Ticket;
 import ru.roach.operasales.repository.entities.TicketEntity;
 import ru.roach.operasales.repository.interfaces.TicketRepository;
-
-import javax.transaction.Transactional;
 
 
 @Service
@@ -29,14 +30,24 @@ public class TicketServices {
 
 
     @NotifyMailBuyTicket
-    @Transactional
+    @org.springframework.transaction.annotation.Transactional(
+            propagation = Propagation.REQUIRES_NEW,
+            isolation = Isolation.DEFAULT,
+            timeout = 3,
+            rollbackFor = {RuntimeException.class}
+    )
     public void buyTicket(String eventName, double money, String mail) {
         Event event = operaServices.getEvent(eventName);
         TicketEntity ticket = ticketRepository.save(new TicketEntity(event, true, mail, money));
         operaServices.reSeatsEvent(event.getName(), event.getSeats() - 1);
     }
 
-    @Transactional
+    @Transactional(
+            propagation = Propagation.REQUIRES_NEW,
+            isolation = Isolation.DEFAULT,
+            timeout = 3,
+            rollbackFor = {RuntimeException.class}
+    )
     public void returnTicket(Long ticketNumber) {
         Ticket ticket = ticketRepository.getById(ticketNumber);
         if (ticket != null){

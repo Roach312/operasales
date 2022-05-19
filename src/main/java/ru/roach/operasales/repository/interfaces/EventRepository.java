@@ -1,15 +1,13 @@
 package ru.roach.operasales.repository.interfaces;
 
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import ru.roach.operasales.repository.entities.EventEntity;
+
+import javax.persistence.LockModeType;
 
 public interface EventRepository extends JpaRepository<EventEntity, Long> {
 
     long deleteByEventName(String eventName);
-
 
     @Query(name = "event.findEventByName")
     @EntityGraph(value = "eventWithTickets")

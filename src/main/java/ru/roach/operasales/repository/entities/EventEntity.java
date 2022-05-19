@@ -37,7 +37,7 @@ import java.util.Collection;
                 }
         )
 })
-@org.hibernate.annotations.Cache(region = "event.id", usage = CacheConcurrencyStrategy.READ_ONLY)
+@org.hibernate.annotations.Cache(region = "event.id", usage = CacheConcurrencyStrategy.READ_WRITE)
 public class EventEntity implements Event{
 
     @Id
@@ -59,6 +59,9 @@ public class EventEntity implements Event{
 
     @OneToMany(mappedBy = "event")
     private Collection<TicketEntity> ticket;
+
+    @Version
+    private Long version;
 
     public EventEntity() {}
 
@@ -122,6 +125,10 @@ public class EventEntity implements Event{
 
     public Collection<TicketEntity> getTicket() {
         return this.ticket;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override

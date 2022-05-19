@@ -1,10 +1,11 @@
 package ru.roach.operasales.model.ticket;
 
+import lombok.Data;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.roach.operasales.model.opera.Event;
 
-@Scope("prototype")
+@Data
 public class EventTicket implements Ticket {
 
     private Event event;
